@@ -1,0 +1,15 @@
+{
+    "name": "service-desk-api",
+    "author": "Max Leychenko",
+    "version": "0.0.1",
+    "main": "./index.js",
+    "types": "./index.d.ts",
+    "dependencies": {
+        "body-parser": "^1.18.3",
+        "debug": "^4.1.1",
+        "express": "^4.16.4",
+        "express-http-proxy": "^1.5.1",
+        "https": "^1.0.0",
+        "url-parse": "^1.4.4"
+    }
+}
