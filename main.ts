@@ -1,6 +1,7 @@
-import { app, BrowserWindow, screen } from 'electron';
+import { app, BrowserWindow, screen, ipcMain } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
+import { ServiceDeskApi } from './serviceDeskApi'
 
 let win, serve;
 const args = process.argv.slice(1);
@@ -46,6 +47,15 @@ function createWindow() {
     // when you should delete the corresponding element.
     win = null;
   });
+
+  // Jira Service Desk backend proxy
+  const backend = new ServiceDeskApi(process.env.JIRA_URI);
+
+  ipcMain.on("login", (event, arg) => {
+    backend.auth(arg, (result) => {
+      win.webContents.send("login-response", result);
+    })
+  })
 
 }
 
