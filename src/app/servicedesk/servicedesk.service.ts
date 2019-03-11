@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { ElectronService } from 'ngx-electron';
 
 @Injectable()
@@ -6,7 +7,7 @@ export class ServiceDeskService {
 
   public isElectronApp: boolean = false;
 
-  constructor(private es: ElectronService) {
+  constructor(private es: ElectronService, private http: HttpClient) {
     this.isElectronApp = this.es.isElectronApp;
   }
 
@@ -31,11 +32,16 @@ export class ServiceDeskService {
         password: password
     }
 
-    this.es.ipcRenderer.on("login-response", (event, arg) => {
-      console.log('Event', event);
-      console.log('Arg', arg);
-    })
-
-    this.es.ipcRenderer.send("login", login);
+    if(this.isElectronApp) {
+      this.es.ipcRenderer.on("login-response", (event, arg) => {
+        console.log('Event', event);
+        console.log('Arg', arg);
+      })
+  
+      this.es.ipcRenderer.send("login", login);
+    } else {
+      this.http.post('/api/auth', login)
+        .subscribe(res => console.log('Response', res))
+    }
   }
 }

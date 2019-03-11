@@ -1,5 +1,5 @@
 "use strict";
-// const debug = require('debug')('backend:main');
+const debug = require('debug')('backend:main');
 const { Proxy } = require('./proxy');
 
 var ServiceDeskApi = /** @class */ (function () {
@@ -14,6 +14,8 @@ var ServiceDeskApi = /** @class */ (function () {
                 const errorMessages = data['errorMessages'];
                 callback({success: false, messages: errorMessages});
             } else {
+                const setCookie = response.headers['set-cookie'] + '' || '';
+                data.setCookie = setCookie;
                 callback({success: true, messages: data});
             }
         })

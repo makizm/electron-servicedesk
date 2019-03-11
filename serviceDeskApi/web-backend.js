@@ -1,10 +1,16 @@
 const LISTEN_PORT = 4000;
 const UI_PORT = 4200;
+const JIRA_URI = process.env.JIRA_URI;
+
+if(!JIRA_URI) {
+    throw new Error(`Must supply Jira server base URI as environmental variable 'JIRA_URI'`);
+}
 
 const debug = require('debug')('backend:web');
 
+// Service Desk backend proxy
 const { ServiceDeskApi } = require('./backend');
-const backend = new ServiceDeskApi();
+const backend = new ServiceDeskApi(JIRA_URI);
 
 const express = require('express');
 const app = express();
@@ -27,7 +33,8 @@ app.route('/api').get((req, res) => {
 app.get('/api/auth', (req, res) => {
     backend.isAuth((result) => {
         if(result.success === true) {
-            res.send(result);
+            res.writeHead(200, { 'Set-Cookie': result.messages.setCookie });
+            res.end('OK');
         } else {
             res.status(401).send(result);
         }
@@ -38,7 +45,8 @@ app.post('/api/auth', (req, res) => {
     const login = req.body;
     backend.auth(login, (result) => {
         if(result.success === true) {
-            res.send(result);
+            res.writeHead(200, { 'Set-Cookie': result.messages.setCookie });
+            res.end('OK');
         } else {
             res.status(401).send(result);
         }

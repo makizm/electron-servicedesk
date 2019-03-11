@@ -18,7 +18,7 @@ export class SdLoginComponent {
     }
 
     onSubmit() {
-        this.sd.login(this.loginForm.value.username, this.loginForm.value.username)
+        this.sd.login(this.loginForm.value.username, this.loginForm.value.password)
             // .subscribe(res => console.log(res))
     }
 }
