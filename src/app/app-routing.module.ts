@@ -3,10 +3,13 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 const routes: Routes = [
-    {
-        path: '',
-        component: HomeComponent
-    }
+    // {
+    //     path: '',
+    //     component: HomeComponent
+    // },
+    { path: 'sd', loadChildren: 'app/servicedesk/servicedesk.module#ServiceDeskModule' },
+    { path: '', redirectTo: 'sd', pathMatch: 'full' },
+    { path: '**', redirectTo: 'sd' },
 ];
 
 @NgModule({
