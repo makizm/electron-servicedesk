@@ -15,7 +15,8 @@ var ServiceDeskApi = /** @class */ (function () {
                 callback({success: false, messages: errorMessages});
             } else {
                 const setCookie = response.headers['set-cookie'] + '' || '';
-                data.setCookie = setCookie;
+                const setCookieArray = setCookie.split(',');    // Set-Cookie multiple values must be in form of an array
+                data.setCookie = setCookieArray;
                 callback({success: true, messages: data});
             }
         })
