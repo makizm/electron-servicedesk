@@ -10,6 +10,8 @@ export class Proxy {
     constructor(baseUri: string)
 
     get(path: string, callback: (response: IncomingMessage, data: any) => void): void;
+    get(path: string, auth: string, callback: (response: IncomingMessage, data: any) => void): void;
 
     post(path: string, data: any, callback: (response: IncomingMessage, data: any) => void): void;
+    post(path: string, data: any, auth: string, callback: (response: IncomingMessage, data: any) => void): void;
 }

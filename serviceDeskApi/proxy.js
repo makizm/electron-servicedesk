@@ -26,7 +26,9 @@ function createNewReqOptions(uri, method) {
     ops.method = method || 'GET';
     ops.rejectUnauthorized = false;
     ops.headers = {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "X-ExperimentalApi": "opt-in",
+        "Cookie": "",
     }
 
     return ops;
@@ -41,7 +43,14 @@ var Proxy = /** @class */ (function () {
         debug('Init using base url ', this.baseUrl);
     }
 
-    Api.prototype.get = function(path, callback) {
+    Api.prototype.get = function(path, auth, callback) {
+        // allow overload to make 'auth' optional
+        let _callback = (callback === null || callback === undefined) ? auth : callback;
+
+        if (typeof _callback !== 'function') {
+            throw new Error('Must provide valid callback function');
+        }
+
         const fullUrl = this.baseUrl + path;
         const uri = new Url(fullUrl);
 
@@ -49,10 +58,18 @@ var Proxy = /** @class */ (function () {
 
         let ops = createNewReqOptions(uri, "GET");
 
+        // authentication data provided
+        if (callback && typeof auth === 'string') {
+            debug('Custom auth', auth);
+            ops.headers.Cookie = auth;
+        }
+
         debug("Sending GET request %o", ops);
 
         https.request(ops, (response) => {
             let str = '';
+
+            debug("Received response with status code ", response.statusCode);
 
             response.on('data', function (chunk) {
                 str += chunk;
@@ -61,10 +78,16 @@ var Proxy = /** @class */ (function () {
             response.on('end', function () {
                 debug("Got data, raw output %o", str);
 
-                // needs validation
-                let jsonData = str ? JSON.parse(str) : null;
+                let jsonData = null;
 
-                return callback(response, jsonData);
+                try {
+                    jsonData = JSON.parse(str);
+                } catch (error) {
+                    jsonData =  { errorMessages: [response.statusMessage] };
+                    debug("Failed to parse response data", error);
+                }
+
+                return _callback(response, jsonData);
             });
         // the end
         // request.end() will completed before
@@ -72,13 +95,25 @@ var Proxy = /** @class */ (function () {
         }).end();
     }
 
-    Api.prototype.post = function(path, data, callback) {
+    Api.prototype.post = function(path, data, auth, callback) {
+        // allow overload to make 'auth' optional
+        let _callback = (callback === null || callback === undefined) ? auth : callback;
+
+        if (typeof _callback !== 'function') {
+            throw new Error('Must provide valid callback function');
+        }
+
         const fullUrl = this.baseUrl + path;
         const uri = new Url(fullUrl);
 
         debug("URI", uri);
 
         let ops = createNewReqOptions(uri, "POST");
+
+        // authentication data provided
+        if (callback && typeof auth === String) {
+            ops.headers.cookie = auth;
+        }
 
         let body = JSON.stringify(data);
         ops.headers['content-length'] = body.length;
@@ -88,17 +123,25 @@ var Proxy = /** @class */ (function () {
         let postReq = https.request(ops, (response) => {
             let str = '';
 
+            debug("Received response with status code ", response.statusCode);
+
             response.on('data', function (chunk) {
                 str += chunk;
             });
-        
+
             response.on('end', function () {
                 debug("Got data, raw output %o", str);
 
-                // needs validation
-                let jsonData = str ? JSON.parse(str) : null;
+                let jsonData = null;
 
-                return callback(response, jsonData);
+                try {
+                    jsonData = JSON.parse(str);
+                } catch (error) {
+                    jsonData =  { errorMessages: [response.statusMessage] };
+                    debug("Failed to parse response data", error);
+                }
+
+                return _callback(response, jsonData);
             });
         })
 

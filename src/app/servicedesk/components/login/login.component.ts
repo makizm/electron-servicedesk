@@ -8,17 +8,22 @@ import { ServiceDeskService } from '../../servicedesk.service';
   styleUrls: [ './login.component.scss' ],
 })
 export class SdLoginComponent {
-    public loginForm: FormGroup;
+  public loginForm: FormGroup;
 
-    constructor(private fb: FormBuilder, private sd: ServiceDeskService) {
-        this.loginForm = this.fb.group({
-            username: ['', Validators.required],
-            password: ['', Validators.required]
-        })
-    }
+  constructor(private fb: FormBuilder, private sd: ServiceDeskService) {
+    this.loginForm = this.fb.group({
+      username: ['', Validators.required],
+      password: ['', Validators.required]
+    })
+  }
 
-    onSubmit() {
-        this.sd.login(this.loginForm.value.username, this.loginForm.value.password)
-            // .subscribe(res => console.log(res))
-    }
+  onSubmit() {
+    this.sd.login(this.loginForm.value.username, this.loginForm.value.password)
+      .subscribe(res => console.log(res))
+  }
+
+  check() {
+    this.sd.isLoggedIn()
+      .subscribe(res => console.log('Is Logged in?', res))
+  }
 }

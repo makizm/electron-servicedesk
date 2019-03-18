@@ -51,9 +51,9 @@ function createWindow() {
   // Jira Service Desk backend proxy
   const backend = new ServiceDeskApi(process.env.JIRA_URI);
 
-  ipcMain.on("login", (event, arg) => {
+  ipcMain.on("auth", (event, arg) => {
     backend.auth(arg, (result) => {
-      win.webContents.send("login-response", result);
+      win.webContents.send("auth-response", result);
     })
   })
 
